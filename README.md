@@ -1,16 +1,17 @@
 ### SORT (siêu xịn) cho các vong
 
-SORT này lọc cả confidence score (**stupid idea**). Lần sau tự lên đây mà kéo về chứ ko zip cho nữa đâu.
+SORT này lọc cả confidence score (**stupid idea** - Tàu ko làm Tây ko làm mà Đao Lồng đòi làm thì chỉ có ăn cám). \
+Lần sau tự lên đây mà kéo về chứ ko zip cho nữa đâu.
 
 #### Installation
 
 - Requirements:
-  - `numpy`
-  - `scipy` (Hungarian algorithm) or  `lap` (Jonker-Volgenant algorithm - faster)
-  - `filterpy` (Kalman filter)
+    - `numpy`
+    - `scipy` (Hungarian algorithm) or  `lap` (Jonker-Volgenant algorithm - faster)
+    - `filterpy` (Kalman filter)
 - Install:
-  - Clone this repo
-  - Run `pip install .`
+    - Clone this repo
+    - Run `pip install .`
 
 #### How to use
 
@@ -22,8 +23,7 @@ cd test
 python test_sort.py
 ```
 
-Now, copy folder `sort_xin` to your code base or install it as a package with `pip` (see above).
-
+Now, copy folder `sort_xin` to your code base or install it as a package with `pip` (see above). \
 Then let's program
 
 ```python
@@ -44,12 +44,12 @@ while True:
 
 #### Note
 
-Under development.
-
+Under development. \
 Reference: https://github.com/abewley/sort
 
 ###### TODO:
-- Better Kalman model for score filtering.
-- Optimize speed.
+
+- Better Kalman model for score filtering (**impossible**).
+- Refract code, optimize speed.
 
 _Oanh Hiền lười như chó!_
