@@ -24,7 +24,9 @@ python test_sort.py
 ```
 
 Now, copy folder `sort_xin` to your code base or install it as a package with `pip` (see above). \
-Then let's program
+Then let's program.
+
+- Initialization:
 
 ```python
 from sort_xin import Sort
@@ -37,12 +39,22 @@ tracker = Sort(max_age=10,
                filter_score=True,
                kalman_return_predictions=True,
                kalman_internal_update=True)
-
-while True:
-    det = model(img)
-    matches, unmatches, track_preds = tracker.update(det)
-    # print to see format, do something cool
 ```
+
+- Usage: Filter the output of detection model `det` which has format `[x1, y1, x2, y2, conf, cls]`. There are three
+  returned values:
+    - `det [np.ndarray]`: detection array with format `[x1, y1, x2, y2, conf, cls, track_id]` where `track_id` is a
+      unique identity assigned; it tries to retain the order of detections in input array.
+    - `surpressed_inds [list]`: indices of surpresed detections in input array (having hit count lower than `min_hits`).
+    - `prediction_inds [list]`: indices of Kalman predictions in output array (tracklets unseen for less than `max_age`)
+      , only available if `kalman_return_predictions=True`.
+
+```python
+  while True:
+    det = model(img)
+    det, surpressed_inds, prediction_inds = tracker.update(det)
+    # print to see format, do something cool
+  ```
 
 #### Note
 

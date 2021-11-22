@@ -47,7 +47,7 @@ def main():
         print(det)
         print('Surpressed detections\' indices (hit count lower than min_hits):')
         print(surpressed_inds)
-        print('Tracking predictions indices (unseen for longer than max_age):')
+        print('Tracking predictions indices (unseen for less than max_age):')
         print(track_pred_inds)
         print()
 
