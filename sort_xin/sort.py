@@ -22,7 +22,7 @@ from filterpy.kalman import KalmanFilter
 
 __all__ = ['Sort']
 
-_SortReturnType = namedtuple('_SortReturnType', ['matches', 'unmatches', 'track_preds'])
+_SortReturnType = namedtuple('_SortReturnType', ['dets', 'surpressed_inds', 'prediction_inds'])
 
 try:
     import lap
@@ -193,15 +193,20 @@ class Sort(object):
                  max_age=1,
                  min_hits=3,
                  iou_threshold=0.3,
+                 conf_threshold=0.1,
                  filter_score=False,
-                 kalman_internal_update=False):
+                 kalman_return_predictions=True,
+                 kalman_internal_update=False,
+                 ):
         """
         Sets key parameters for SORT
         """
         self.max_age = max_age
         self.min_hits = min_hits
         self.iou_threshold = iou_threshold
+        self.conf_threshold = conf_threshold
         self.filter_score = filter_score
+        self.kalman_return_predictions = kalman_return_predictions
         self.kalman_internal_update = kalman_internal_update
 
         self.trackers = []
@@ -233,7 +238,7 @@ class Sort(object):
             self.trackers.pop(j)
         trks = np.ma.compress_rows(np.ma.masked_invalid(trks))
 
-        unmatched_dets_trks_inds, unmatched_dets_inds, unmatched_trks_inds = self.associate_detections(dets, trks)
+        unmatched_dets_trks_inds, supressed_inds, unmatched_trks_inds = self.associate_detections(dets, trks)
         inds = unmatched_dets_trks_inds.tolist()
 
         # update matched trackers with assigned detections
@@ -245,13 +250,15 @@ class Sort(object):
             self.trackers[j].self_update()
 
         # create and initialise new trackers for unmatched detections
-        for i in unmatched_dets_inds:
+        for i in supressed_inds:
             trk = KalmanBoxTracker(dets[i, :], self.filter_score, self.kalman_internal_update)
             self.trackers.append(trk)
             inds.append([i, len(self.trackers) - 1])
         inds = np.array(sorted(inds, key=lambda _: _[0]))
 
         unmatched_trks = trks[unmatched_trks_inds.tolist()]
+        unmatched_trks = unmatched_trks[unmatched_trks[:, 4] >= self.conf_threshold]
+
         ret = []
         i = len(self.trackers)
         for trk in reversed(self.trackers):
@@ -267,12 +274,15 @@ class Sort(object):
                     self.trackers.pop(i)
         ret.reverse()
 
-        unmatches = [id for id, (i, j) in enumerate(inds) if ret[j] is None]
+        supressed_inds = [id for id, (i, j) in enumerate(inds) if ret[j] is None]
         ret = [ret[j] for i, j in inds if ret[j] is not None]
-        return _SortReturnType(np.concatenate(ret).astype(dets.dtype) if len(ret) else
-                               np.empty((0, 5), dtype=dets.dtype),
-                               unmatches,
-                               unmatched_trks)
+        ret = np.concatenate(ret).astype(dets.dtype) if len(ret) else np.empty((0, 5), dtype=dets.dtype)
+        if self.kalman_return_predictions:
+            prediction_inds = list(range(len(ret), len(ret) + len(unmatched_trks)))
+            ret = np.concatenate([ret, unmatched_trks])
+        else:
+            prediction_inds = []
+        return _SortReturnType(ret, supressed_inds, prediction_inds)
 
     def associate_detections(self, detections, trackers):
         """

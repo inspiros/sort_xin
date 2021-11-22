@@ -13,7 +13,7 @@ def main():
                      [0., 1.]])  # state transition matrix
     kf.H = np.array([[1., 0.]])  # Measurement function
     kf.P *= 1000.  # covariance matrix
-    kf.R = np.array([[1e-10]])  # measurement noise
+    kf.R = np.array([[1e-10]])   # measurement noise
     # kf.Q = Q_discrete_white_noise(2, 1/30, .1) # process uncertainty
     kf.Q *= 1e10
     print(kf.Q)

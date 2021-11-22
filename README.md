@@ -33,7 +33,9 @@ from sort_xin import Sort
 tracker = Sort(max_age=10,
                min_hits=1,
                iou_threshold=0.5,
+               conf_threshold=0.1,
                filter_score=True,
+               kalman_return_predictions=True,
                kalman_internal_update=True)
 
 while True:
@@ -46,10 +48,5 @@ while True:
 
 Under development. \
 Reference: https://github.com/abewley/sort
-
-###### TODO:
-
-- Better Kalman model for score filtering (**impossible**).
-- Refract code, optimize speed.
 
 _Oanh Hiền lười như chó!_

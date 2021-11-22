@@ -30,19 +30,25 @@ def main():
     output_file = os.path.join(os.path.dirname(__file__), '../data/out.txt')
     dets = load_hien(output_file)
 
-    tracker = Sort(max_age=5, min_hits=3, iou_threshold=0.5, filter_score=True)
+    np.set_printoptions(precision=3)
+    tracker = Sort(max_age=5, min_hits=3, iou_threshold=0.5, conf_threshold=0.1, filter_score=True)
     for frame_id, det in enumerate(dets):
         # simulate miss detection by randomly remove some bboxes
         det = det[:-4]
 
-        # update tracklets
-        matches, unmatches, track_preds = tracker.update(det)
-
         print(frame_id)
-        print('Matches (matched and filtered detections):')
-        print(matches[:, 4:].T)
-        print('Tracking predictions (unmatched tracklets under max_age):')
-        print(track_preds[:, 4:].T)
+        print('Original dets:')
+        print(det)
+
+        # update tracklets
+        det, surpressed_inds, track_pred_inds = tracker.update(det)
+
+        print('SORTed dets:')
+        print(det)
+        print('Surpressed detections\' indices (hit count lower than min_hits):')
+        print(surpressed_inds)
+        print('Tracking predictions indices (unseen for longer than max_age):')
+        print(track_pred_inds)
         print()
 
 
